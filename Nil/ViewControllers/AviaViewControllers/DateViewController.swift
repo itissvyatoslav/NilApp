@@ -10,6 +10,10 @@ import UIKit
 
 class DateViewController: UIViewController {
     
+    var fromCity = ""
+    var toCity = ""
+    var isBuggage = false
+    
     //MARK:- OUTLETS
     
     @IBOutlet weak var mainLabel: UILabel!
@@ -20,6 +24,9 @@ class DateViewController: UIViewController {
     @IBOutlet weak var nextButton: UIButton!
     @IBOutlet weak var closeKeyboard: UIButton!
     @IBOutlet weak var calendarImage: UIImageView!
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
+    
     
     
     var hour1 = 18
@@ -36,6 +43,7 @@ class DateViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        setLights()
         closeKeyboard.alpha = 0
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillDisappear), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -56,6 +64,7 @@ class DateViewController: UIViewController {
     override var prefersStatusBarHidden: Bool { return true }
     
     private func setView(){
+        shopView.layer.cornerRadius = 20
         time1Label.text = "\(hour1):\(minute1)"
         time2Label.text = "\(hour2):\(minute2)"
         nextButton.layer.cornerRadius = 11
@@ -107,11 +116,12 @@ class DateViewController: UIViewController {
     
     @IBAction func freeDaysTapped(_ sender: Any) {
         if isFreeDays {
-            calendarImage.image = UIImage(named: "ill_calendar")
-        } else {
             calendarImage.image = UIImage(named: "ill_calendar2")
+        } else {
+            calendarImage.image = UIImage(named: "ill_calendar")
         }
         isFreeDays = !isFreeDays
+        print(isFreeDays)
     }
     
     
@@ -125,7 +135,40 @@ class DateViewController: UIViewController {
     
     @IBAction func nextTapped(_ sender: Any) {
         let vc = self.storyboard?.instantiateViewController(identifier: "PeopleViewController") as! PeopleViewController
+        vc.fromCity = self.fromCity
+        vc.toCity = self.toCity
+        vc.isBuggage = self.isBuggage
+        vc.toTime = time2Label.text ?? ""
+        vc.isFreeDays = self.isFreeDays
+        vc.toDate = textField2.text ?? ""
+        vc.fromDate = textField1.text ?? ""
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
     }
     
 }

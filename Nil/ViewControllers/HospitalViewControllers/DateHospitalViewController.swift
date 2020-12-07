@@ -11,7 +11,7 @@ import UIKit
 class DateHospitalViewController: UIViewController {
     
     let hospitals = ["ГБУЗ №3", "ГКБ №121", "ГП №11", "ГКБСМП №21", "ГКП №1", "ГИК №2", "ЦКБ №2"]
-    let dates = ["12.10.2020", "13.10.2020", "14.10.2020", "19.10.2020", "20.10.2020"]
+    var dates = [String]()
     let times = ["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"]
     var isMale = false
     
@@ -37,6 +37,39 @@ class DateHospitalViewController: UIViewController {
     @IBOutlet weak var emailTF: UITextField!
     @IBOutlet weak var nextButton: UIButton!
     
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
+    
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
     
     var nameDoctor = ""
     var room = ""
@@ -44,6 +77,8 @@ class DateHospitalViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         hideNavigationBar()
+        getDates()
+        shopView.layer.cornerRadius = 20
         timeTable.isHidden = true
         hospitalsTable.isHidden = true
         dateTable.isHidden = true
@@ -83,9 +118,12 @@ class DateHospitalViewController: UIViewController {
     }
     
     @IBAction func receptionTapped(_ sender: Any) {
-        hospitalsTable.isHidden = !hospitalsTable.isHidden
         timeTable.isHidden = true
         dateTable.isHidden = true
+        hospitalsTable.isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: {
+            self.hospitalsTable.isHidden = true
+        })
     }
     
     //MARK:- ANOTHER ACTIONS
@@ -128,6 +166,29 @@ class DateHospitalViewController: UIViewController {
         isMale = true
     }
     
+    private func getDates(){
+        let date = Date()
+        let calendar = Calendar.current
+        let day = calendar.component(.day, from: date)
+        let month = calendar.component(.month, from: date)
+        let year = calendar.component(.year, from: date)
+        dates.append("\(day).\(month).\(year)")
+        let nextCalendar = Calendar.current.date(byAdding: .day, value: +1, to: date)
+        let nextDay = calendar.component(.day, from: nextCalendar!)
+        let nextMonth = calendar.component(.month, from: nextCalendar!)
+        let nextYear = calendar.component(.year, from: nextCalendar!)
+        dates.append("\(nextDay).\(nextMonth).\(nextYear)")
+        let nextNextCalendar = Calendar.current.date(byAdding: .day, value: +2, to: date)
+        let nextNextDay = calendar.component(.day, from: nextNextCalendar!)
+        let nextNextMonth = calendar.component(.month, from: nextNextCalendar!)
+        let nextNextYear = calendar.component(.year, from: nextNextCalendar!)
+        dates.append("\(nextNextDay).\(nextNextMonth).\(nextNextYear)")
+        let nextNextNextCalendar = Calendar.current.date(byAdding: .day, value: +3, to: date)
+        let nextNextNextDay = calendar.component(.day, from: nextNextNextCalendar!)
+        let nextNextNextMonth = calendar.component(.month, from: nextNextNextCalendar!)
+        let nextNextNextYear = calendar.component(.year, from: nextNextNextCalendar!)
+        dates.append("\(nextNextNextDay).\(nextNextNextMonth).\(nextNextNextYear)")
+    }
 }
 
 extension DateHospitalViewController: UITableViewDataSource, UITableViewDelegate {

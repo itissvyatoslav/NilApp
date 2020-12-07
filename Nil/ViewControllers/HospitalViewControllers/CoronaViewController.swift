@@ -11,7 +11,7 @@ import UIKit
 class CoronaViewController: UIViewController {
     
     let hospitals = ["ГБУЗ №3", "ГКБ №121", "ГП №11", "ГКБСМП №21", "ГКП №1", "ГИК №2", "ЦКБ №2"]
-    var isChecked = [false, false, false, false, false, false, false, false, false, false, false, false]
+    var isChecked = [false, false, false, false, false, false, false, false, false, false, true, false]
     
     var nameDoctor = ""
     var room = ""
@@ -36,9 +36,43 @@ class CoronaViewController: UIViewController {
     @IBOutlet weak var check11: UIButton!
     @IBOutlet weak var check12: UIButton!
     
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
+    
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         hideNavigationBar()
+        shopView.layer.cornerRadius = 20
         hospitalsTable.isHidden = true
         hospitalsTable.delegate = self
         hospitalsTable.dataSource = self
@@ -68,7 +102,10 @@ class CoronaViewController: UIViewController {
     }
     
     @IBAction func receptionTapped(_ sender: Any) {
-        hospitalsTable.isHidden = !hospitalsTable.isHidden
+        hospitalsTable.isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: {
+            self.hospitalsTable.isHidden = true
+        })
     }
     
     
@@ -137,7 +174,7 @@ class CoronaViewController: UIViewController {
     @IBAction func check11Tapped(_ sender: Any) {
         check11.setImage(UIImage(systemName: "checkmark.square"), for: .normal)
         hospitalsTable.isHidden = true
-        isChecked[10] = true
+        isChecked[10] = false
     }
     
     @IBAction func check12Tapped(_ sender: Any) {

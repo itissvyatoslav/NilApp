@@ -10,6 +10,8 @@ import UIKit
 
 class ConfirmPaymentViewController: UIViewController {
     
+    var isRub = false
+    
     var toPhone = false
     
     //MARK:- OUTLETS
@@ -33,6 +35,39 @@ class ConfirmPaymentViewController: UIViewController {
     @IBOutlet weak var moneyLabel: UILabel!
     @IBOutlet weak var numbersLabel: UILabel!
     
+    @IBOutlet weak var shopView: UIView!
+   // @IBOutlet weak var shopLabel: UILabel!
+    
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
+    
     
     
     @IBOutlet weak var commentTF: UITextField!
@@ -54,18 +89,26 @@ class ConfirmPaymentViewController: UIViewController {
     }
     
     private func setView(){
-        moneyLabel.text = "\(cardSumm) ₽"
+        shopView.layer.cornerRadius = 20
         numbersLabel.text = cardNumber
         commentTF.delegate = self
         tickButton.isHidden = true
         firstAgreeButton.alpha = 0
         secondAgreeButton.alpha = 0
         let newBalanceSumm = round(Double(summ) / 0.01) * 0.01
-        newBalance.text = "\(Double(cardSumm) - newBalanceSumm) ₽"
-        summLabel.text = "-\(newBalanceSumm) ₽"
-        phoneLabel.text = contactPhone
         transaction = Double(summ) - newSumm(newBalanceSumm)
-        newSummLabel.text = "+ \(transaction) ₽"
+        if isRub {
+            moneyLabel.text = "\(cardSumm) ₽"
+            newBalance.text = "\(Double(cardSumm) - newBalanceSumm) ₽"
+            summLabel.text = "-\(newBalanceSumm) ₽"
+            newSummLabel.text = "+ \(transaction) ₽"
+        } else {
+            moneyLabel.text = "\(cardSumm) $"
+            newBalance.text = "\(Double(cardSumm) - newBalanceSumm) $"
+            summLabel.text = "-\(newBalanceSumm) $"
+            newSummLabel.text = "+ \(transaction) $"
+        }
+        phoneLabel.text = contactPhone
         nameLabel.text = contactName
         cardView.layer.cornerRadius = 20
         bannerView.layer.cornerRadius = 20
@@ -86,6 +129,7 @@ class ConfirmPaymentViewController: UIViewController {
     @IBAction func nextTapped(_ sender: Any) {
         if isTicked {
             let vc = storyboard?.instantiateViewController(withIdentifier: "FinishBankViewController") as! FinishBankViewController
+            vc.isRub = self.isRub
             vc.toPhone = self.toPhone
             vc.contactName = self.contactName
             vc.contactPhone = self.contactPhone

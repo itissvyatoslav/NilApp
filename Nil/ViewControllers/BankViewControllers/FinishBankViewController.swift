@@ -11,6 +11,8 @@ import AVFoundation
 
 class FinishBankViewController: UIViewController {
     
+    var isRub = false
+    
     var toPhone = false
     
     var cardNumber = ""
@@ -49,8 +51,38 @@ class FinishBankViewController: UIViewController {
     @IBOutlet weak var moneyLabel: UILabel!
     @IBOutlet weak var cardNumberLabel: UILabel!
     
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
     
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
     
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,7 +91,7 @@ class FinishBankViewController: UIViewController {
     }
     
     private func setView(){
-        moneyLabel.text = "\(oldSumm) ₽"
+        shopView.layer.cornerRadius = 20
         cardNumberLabel.text = cardNumber
         let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(didSwipedUp))
         swipeUp.direction = UISwipeGestureRecognizer.Direction.up
@@ -70,12 +102,20 @@ class FinishBankViewController: UIViewController {
         cardView.layer.cornerRadius = 20
         checkView.layer.cornerRadius = 20
         readyButton.layer.cornerRadius = 11
-        newSummLabel.text = "\(newSumm) ₽"
         nameLabel.text = contactName
-        summLabel.text = "\(transactionSumm) ₽"
         phoneLabel.text = contactPhone
         commentLabel.text = comment
-        taxLabel.text = "комиссия составила \(summ - transactionSumm)₽"
+        if isRub {
+            moneyLabel.text = "\(oldSumm) ₽"
+            newSummLabel.text = "\(newSumm) ₽"
+            summLabel.text = "\(transactionSumm) ₽"
+            taxLabel.text = "комиссия составила \(summ - transactionSumm)₽"
+        } else {
+            moneyLabel.text = "\(oldSumm) $"
+            newSummLabel.text = "\(newSumm) $"
+            summLabel.text = "\(transactionSumm) $"
+            taxLabel.text = "комиссия составила \(summ - transactionSumm)$"
+        }
     }
     
     override var prefersStatusBarHidden: Bool { return true }
@@ -99,6 +139,17 @@ class FinishBankViewController: UIViewController {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
                 let vc = storyboard.instantiateViewController(withIdentifier: "GoodFinishViewController") as! GoodFinishViewController
                 self.navigationController?.pushViewController(vc, animated: true)
+            } else {
+                let number = Int.random(in: 1...10)
+                if number % 2 == 0 {
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    let vc = storyboard.instantiateViewController(withIdentifier: "FirstBadFinishViewController") as! FirstBadFinishViewController
+                    self.navigationController?.pushViewController(vc, animated: true)
+                } else {
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    let vc = storyboard.instantiateViewController(withIdentifier: "SecondBadViewController") as! SecondBadViewController
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
             }
         }
     }
@@ -107,7 +158,7 @@ class FinishBankViewController: UIViewController {
         startMusic()
         var textMessage: String = ""
         
-        if transactionSumm != 98 {
+        if transactionSumm != 1300 {
             isGood = false
             textMessage = "Ты же мне 98 должен был"
         }
@@ -132,6 +183,10 @@ class FinishBankViewController: UIViewController {
             textMessage = "Так надо же было с карты жены"
         }
         
+        if !isRub {
+            isGood = false
+            textMessage = "А долларами зачем?"
+        }
         if isGood {
             textMessage = "Спасибо, что вернул в срок!"
         }

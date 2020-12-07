@@ -14,9 +14,43 @@ class DoctorsViewController: UIViewController {
     
     @IBOutlet weak var hospitalsView: UITableView!
     
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
+    
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         hideNavigationBar()
+        shopView.layer.cornerRadius = 20
         hospitalsView.isHidden = true
         hospitalsView.delegate = self
         hospitalsView.dataSource = self
@@ -40,7 +74,11 @@ class DoctorsViewController: UIViewController {
     }
     
     @IBAction func receptionTapped(_ sender: Any) {
-        hospitalsView.isHidden = !hospitalsView.isHidden
+        
+        hospitalsView.isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: {
+            self.hospitalsView.isHidden = true
+        })
     }
     
     @IBAction func scheduleTapped(_ sender: Any) {

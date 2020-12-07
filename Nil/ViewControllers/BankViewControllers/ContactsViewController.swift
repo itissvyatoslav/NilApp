@@ -10,6 +10,8 @@ import UIKit
 
 class ContactsViewController: UIViewController {
     
+    var isRub = false
+    
     var cardSumm = 0
     var cardNumber = ""
     
@@ -26,13 +28,21 @@ class ContactsViewController: UIViewController {
     
     @IBOutlet weak var contactsTable: UITableView!
     @IBOutlet weak var tepelphoneTF: UITextField!
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         hideNavigationBar()
         setTable()
+        shopView.layer.cornerRadius = 20
         tepelphoneTF.delegate = self
+        print(isRub)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
     }
     
     override var prefersStatusBarHidden: Bool { return true }
@@ -45,8 +55,35 @@ class ContactsViewController: UIViewController {
     }
     
     @IBAction func backAction(_ sender: Any) {
-        self.navigationController?.popViewControllers(viewsToPop: 3)
+        self.navigationController?.popViewController(animated: true)
     }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
     
 }
 
@@ -69,6 +106,7 @@ extension ContactsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = storyboard?.instantiateViewController(withIdentifier: "PaymentViewController") as! PaymentViewController
+        vc.isRub = self.isRub
         vc.toPhone = self.toPhone
         vc.cardSumm = self.cardSumm
         vc.cardNumber = self.cardNumber

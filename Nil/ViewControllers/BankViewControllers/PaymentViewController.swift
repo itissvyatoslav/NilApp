@@ -10,6 +10,8 @@ import UIKit
 
 class PaymentViewController: UIViewController {
     
+    var isRub = false
+    
     var toPhone = false
     
     var cardSumm = 0
@@ -31,8 +33,41 @@ class PaymentViewController: UIViewController {
     @IBOutlet weak var moneyLabel: UILabel!
     @IBOutlet weak var cardNumbersLabel: UILabel!
     
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
+    
+    @IBOutlet weak var shopTapped: UIButton!
     
     
+    @IBAction func shopAction(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,7 +76,14 @@ class PaymentViewController: UIViewController {
     }
     
     private func setView(){
-        moneyLabel.text = "\(cardSumm) ₽"
+        shopView.layer.cornerRadius = 20
+        if isRub {
+            summTF.text = "0.00 ₽"
+            moneyLabel.text = "\(cardSumm) ₽"
+        } else {
+            moneyLabel.text = "\(cardSumm) $"
+            summTF.text = "0.00 $"
+        }
         cardNumbersLabel.text = cardNumber
         summTF.delegate = self
         nextButton.layer.cornerRadius = 11
@@ -49,7 +91,7 @@ class PaymentViewController: UIViewController {
         anotherCardView.layer.cornerRadius = 20
         downLabel.text = "Нажимая “Перевести” вы соглашаетесь\nс условиями перевода. Комиссия может\nвзиматься  какая угодно, по желанию банка."
         summTF.textColor = UIColor.white
-        summTF.text = "0.00 ₽"
+        
         nameLabel.text = contactName
         phoneLabel.text = contactPhone
     }
@@ -58,6 +100,7 @@ class PaymentViewController: UIViewController {
     
     @IBAction func nextTapped(_ sender: Any) {
         let vc = storyboard?.instantiateViewController(withIdentifier: "ConfirmPaymentViewController") as! ConfirmPaymentViewController
+        vc.isRub = self.isRub
         vc.toPhone = self.toPhone
         vc.contactName = self.contactName
         vc.contactPhone = self.contactPhone

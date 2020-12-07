@@ -18,11 +18,27 @@ class MainMenuViewController: UIViewController {
     @IBOutlet weak var backgroundView: UIView!
     
     private var isSwiped = false
+    var isFirstEnter = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setViews()
         hideNavigationBar()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if isFirstEnter {
+            bigGreenView.alpha = 0
+            smallBlackView.alpha = 0
+            tappedBigGreenView.alpha = 0
+            backgroundView.alpha = 1
+            UIView.animate(withDuration: 0.5) { [self] in
+                bigGreenView.alpha = 1
+                backgroundView.alpha = 1
+                smallBlackView.alpha = 1
+            }
+            isFirstEnter = false
+        }
     }
     
     private func setViews(){
@@ -80,10 +96,16 @@ class MainMenuViewController: UIViewController {
     
     @IBAction func tapGreenView(_ sender: Any) {
         if isSwiped {
-            //let storyboard = UIStoryboard(name: "Tickets", bundle: nil)
-            let vc = storyboard?.instantiateViewController(withIdentifier: "TaskViewController") as! TaskViewController
-            vc.idTask = 0
-            self.navigationController?.pushViewController(vc, animated: true)
+            let isNotFirstEnter = UserDefaults.standard.bool(forKey: "firstEnter")
+            
+            if isNotFirstEnter {
+                let vc = storyboard?.instantiateViewController(withIdentifier: "GamePickerViewController") as! GamePickerViewController
+                self.navigationController?.pushViewController(vc, animated: true)
+            } else {
+                let vc = storyboard?.instantiateViewController(withIdentifier: "TaskViewController") as! TaskViewController
+                vc.idTask = 3
+                self.navigationController?.pushViewController(vc, animated: false)
+            }
         } else {
             UIView.animate(withDuration: 1) {
                 self.tappedBigGreenView.alpha = 1
@@ -96,12 +118,7 @@ class MainMenuViewController: UIViewController {
     
     @IBAction func tapBlackView(_ sender: Any) {
         if isSwiped {
-            let vc = storyboard?.instantiateViewController(withIdentifier: "TaskViewController") as! TaskViewController
-            vc.idTask = 1
-            self.navigationController?.pushViewController(vc, animated: true)
-           // let storyboard = UIStoryboard(name: "Bank", bundle: nil)
-           // let vc = storyboard.instantiateViewController(withIdentifier: //"MainBankViewController") as! MainBankViewController
-           // self.navigationController?.pushViewController(vc, animated: true)
+
         } else {
             UIView.animate(withDuration: 1) {
                 self.backgroundView.center.y -= 25
@@ -113,15 +130,7 @@ class MainMenuViewController: UIViewController {
             }
         }
     }
-    
-    @IBAction func hospitalAction(_ sender: Any) {
-        let vc = storyboard?.instantiateViewController(withIdentifier: "TaskViewController") as! TaskViewController
-        vc.idTask = 2
-        self.navigationController?.pushViewController(vc, animated: true)
-       // let storyboard = UIStoryboard(name: "Hospital", bundle: nil)
-       // let vc = storyboard.instantiateViewController(withIdentifier: //"MainHospitalViewController") as! MainHospitalViewController
-       // self.navigationController?.pushViewController(vc, animated: true)
-    }
+
     
     
 }

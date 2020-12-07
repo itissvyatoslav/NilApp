@@ -39,9 +39,41 @@ class FinishHospitalViewController: UIViewController {
     @IBOutlet weak var nextButton: UIButton!
     
     @IBOutlet weak var hospitalsTable: UITableView!
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
     
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
     
     override func viewDidLoad() {
+        shopView.layer.cornerRadius = 20
         super.viewDidLoad()
         hideNavigationBar()
         setView()
@@ -90,7 +122,10 @@ class FinishHospitalViewController: UIViewController {
     }
     
     @IBAction func receptionAction(_ sender: Any) {
-        hospitalsTable.isHidden = !hospitalsTable.isHidden
+        hospitalsTable.isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: {
+            self.hospitalsTable.isHidden = true
+        })
     }
     
     @IBAction func readyAction(_ sender: Any) {
@@ -102,6 +137,17 @@ class FinishHospitalViewController: UIViewController {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "GoodFinishViewController") as! GoodFinishViewController
             self.navigationController?.pushViewController(vc, animated: true)
+        } else {
+            let number = Int.random(in: 1...10)
+            if number % 2 == 0 {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let vc = storyboard.instantiateViewController(withIdentifier: "FirstBadFinishViewController") as! FirstBadFinishViewController
+                self.navigationController?.pushViewController(vc, animated: true)
+            } else {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let vc = storyboard.instantiateViewController(withIdentifier: "SecondBadViewController") as! SecondBadViewController
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
         }
     }
     

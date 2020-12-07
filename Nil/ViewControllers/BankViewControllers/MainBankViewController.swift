@@ -10,7 +10,17 @@ import UIKit
 
 class MainBankViewController: UIViewController {
     
+    enum CardsCurrency {
+        case ruble
+        case dollar
+    }
+    
+    var isRub = false
+    
     var selectedSumm = 94000
+    var selectedSummRub = 94000
+    var selectedSummDollar = 0
+    var selectedCard = CardsCurrency.dollar
     
     var areCardsSelecting = false
     
@@ -21,16 +31,25 @@ class MainBankViewController: UIViewController {
     
     let numbersCard = ["**** 4523", "**** 4519", "**** 4591"]
     let summs = [94000, 1600, 45000]
+    let summsDollars = [140, 0, 800]
     
     //MARK:- OUTLETS
     
     @IBOutlet weak var firstLabel: UILabel!
     @IBOutlet weak var cardView: UIView!
+    @IBOutlet weak var secondCardView: UIView!
+    
     @IBOutlet weak var menuTable: UITableView!
     @IBOutlet weak var secondLabel: UILabel!
     
     @IBOutlet weak var moneyLabel: UILabel!
     @IBOutlet weak var cardNumberLabel: UILabel!
+    
+    @IBOutlet weak var secondMoneyLabel: UILabel!
+    @IBOutlet weak var secondCardNumberLabel: UILabel!
+    
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
     
     
     override func viewDidLoad() {
@@ -40,11 +59,44 @@ class MainBankViewController: UIViewController {
         setTable()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
+    
     private func setView() {
-        moneyLabel.text = "94000 ₽"
+        shopView.layer.cornerRadius = 20
+        moneyLabel.text = "140 $"
+        secondMoneyLabel.text = "94000 ₽"
         firstLabel.text = "Сезонное предложение:\nоткрой 2 кредита и получи 3ий"
         secondLabel.text = "Вы всё еще тратите деньги с\nдебетовой карты? Хватит!"
+        secondCardView.layer.cornerRadius = 20
         cardView.layer.cornerRadius = 20
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(didSwipedLeft))
+        swipeLeft.direction = UISwipeGestureRecognizer.Direction.left
+        self.cardView.addGestureRecognizer(swipeLeft)
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(didSwipedRight))
+        swipeRight.direction = UISwipeGestureRecognizer.Direction.right
+        self.secondCardView.addGestureRecognizer(swipeRight)
+    }
+    
+    @objc func didSwipedLeft() {
+        isRub = true
+        selectedCard = CardsCurrency.ruble
+        print("left")
+        UIView.animate(withDuration: 0.5) {
+            self.cardView.center.x -= UIScreen.main.bounds.width
+            self.secondCardView.center.x -= UIScreen.main.bounds.width
+        }
+    }
+    
+    @objc func didSwipedRight() {
+        isRub = false
+        selectedCard = CardsCurrency.dollar
+        print("right")
+        UIView.animate(withDuration: 0.5) {
+            self.cardView.center.x += UIScreen.main.bounds.width
+            self.secondCardView.center.x += UIScreen.main.bounds.width
+        }
     }
     
     private func setTable() {
@@ -56,6 +108,34 @@ class MainBankViewController: UIViewController {
     }
     
     override var prefersStatusBarHidden: Bool { return true }
+    
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
+    
 }
 
 extension MainBankViewController: UITableViewDelegate, UITableViewDataSource {
@@ -114,46 +194,73 @@ extension MainBankViewController: UITableViewDelegate, UITableViewDataSource {
         if areCardsSelecting {
             
             if indexPath.row == 1 {
+                print("\(indexPath.row) is selecting")
                 areCardsSelecting = false
-                selectedSumm = summs[0]
-                moneyLabel.text = "\(summs[0]) ₽"
+                selectedSummDollar = summsDollars[0]
+                selectedSummRub = summs[0]
+                moneyLabel.text = "\(summsDollars[0]) $"
+                secondMoneyLabel.text = "\(summs[0]) ₽" 
                 cardNumberLabel.text = numbersCard[0]
                 tableView.reloadData()
             }
             
             if indexPath.row == 2 {
                 areCardsSelecting = false
-                selectedSumm = summs[1]
-                moneyLabel.text = "\(summs[1]) ₽"
+                selectedSummDollar = summsDollars[1]
+                selectedSummRub = summs[1]
+                moneyLabel.text = "\(summsDollars[1]) $"
+                secondMoneyLabel.text = "\(summs[1]) ₽"
                 cardNumberLabel.text = numbersCard[1]
                 tableView.reloadData()
             }
             
             if indexPath.row == 3 {
-                selectedSumm = summs[2]
+                selectedSummDollar = summsDollars[2]
+                selectedSummRub = summs[2]
                 areCardsSelecting = false
-                moneyLabel.text = "\(summs[2]) ₽"
+                moneyLabel.text = "\(summsDollars[2]) $"
+                secondMoneyLabel.text = "\(summs[2]) ₽"
                 cardNumberLabel.text = numbersCard[2]
                 tableView.reloadData()
             }
             
             if indexPath.row == 9 {
                 let vc = storyboard?.instantiateViewController(withIdentifier: "ContactsViewController") as! ContactsViewController
-                vc.cardSumm = Int(moneyLabel.text ?? "0") ?? 0
+                if isRub {
+                    selectedSumm = selectedSummRub
+                } else {
+                    selectedSumm = selectedSummDollar
+                }
+                vc.isRub = self.isRub
+                vc.cardSumm = selectedSumm
                 vc.cardNumber = cardNumberLabel.text ?? ""
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             
             if indexPath.row == 10 {
                 let vc = storyboard?.instantiateViewController(withIdentifier: "ContactsViewController") as! ContactsViewController
-                vc.cardSumm = Int(moneyLabel.text ?? "0") ?? 0
+                if isRub {
+                    selectedSumm = selectedSummRub
+                } else {
+                    selectedSumm = selectedSummDollar
+                }
+                vc.isRub = self.isRub
+                vc.cardSumm = selectedSumm
                 vc.cardNumber = cardNumberLabel.text ?? ""
                 vc.toPhone = true
                 self.navigationController?.pushViewController(vc, animated: true)
             }
+            
+            secondCardNumberLabel.text = cardNumberLabel.text
         } else {
             if indexPath.row == 6 {
                 let vc = storyboard?.instantiateViewController(withIdentifier: "ContactsViewController") as! ContactsViewController
+                if isRub {
+                    selectedSumm = selectedSummRub
+                } else {
+                    selectedSumm = selectedSummDollar
+                }
+                vc.isRub = self.isRub
                 vc.cardSumm = selectedSumm
                 vc.cardNumber = cardNumberLabel.text ?? ""
                 self.navigationController?.pushViewController(vc, animated: true)
@@ -161,6 +268,12 @@ extension MainBankViewController: UITableViewDelegate, UITableViewDataSource {
             
             if indexPath.row == 7 {
                 let vc = storyboard?.instantiateViewController(withIdentifier: "ContactsViewController") as! ContactsViewController
+                if isRub {
+                    selectedSumm = selectedSummRub
+                } else {
+                    selectedSumm = selectedSummDollar
+                }
+                vc.isRub = self.isRub
                 vc.cardSumm = selectedSumm
                 vc.cardNumber = cardNumberLabel.text ?? ""
                 vc.toPhone = true

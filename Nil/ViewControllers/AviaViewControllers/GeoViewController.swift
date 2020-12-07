@@ -23,14 +23,29 @@ class GeoViewController: UIViewController {
     @IBOutlet weak var citiesTable: UITableView!
     @IBOutlet weak var fromLabel: UILabel!
     @IBOutlet weak var toLabel: UILabel!
+    @IBOutlet weak var shopView: UIView!
+    //@IBOutlet weak var shopLabel: UILabel!
     
+    override func viewWillAppear(_ animated: Bool) {
+        setLights()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setView()
     }
     
+    private func setLights() {
+        let numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights != 500 {
+            //shopLabel.text = "\(numberLights)"
+        } else {
+            //shopLabel.text = "∞"
+        }
+    }
+    
     private func setView(){
+        shopView.layer.cornerRadius = 20
         mainLabel.text = "Выберите откуда вас\nзабрать и куда доставить"
         checkBox.isHidden = true
         nextButton.layer.cornerRadius = 11
@@ -66,8 +81,29 @@ class GeoViewController: UIViewController {
     
     @IBAction func nextTapped(_ sender: Any) {
         let vc = self.storyboard?.instantiateViewController(identifier: "DateViewController") as! DateViewController
+        vc.fromCity = fromLabel.text ?? ""
+        vc.toCity = toLabel.text ?? ""
+        vc.isBuggage = !checkBox.isHidden
         self.navigationController?.pushViewController(vc, animated: true)
     }
+    
+    @IBAction func shopTapped(_ sender: Any) {
+        var numberLights = UserDefaults.standard.integer(forKey: "lights")
+        if numberLights == 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else if numberLights == 500 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            numberLights -= 1
+            UserDefaults.standard.set(numberLights, forKey: "lights")
+            //shopLabel.text = "\(numberLights)"
+        }
+    }
+    
     
 
 }
