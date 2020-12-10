@@ -19,6 +19,14 @@ class PeopleViewController: UIViewController {
     var fromDate = ""
     var toDate = ""
     
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "Новости", from: "Авиа", text: "Дети могут перевозиться только в сопровождение с взрослым пассажиром"), Helper(title: "DeZigner", from: "Подсказка", text: "Введите количество взрослых и потом детей")]
+    
     
     //MARK:- OUTLETS
     
@@ -31,6 +39,11 @@ class PeopleViewController: UIViewController {
     @IBOutlet weak var childrenCountLabel: UILabel!
     @IBOutlet weak var shopView: UIView!
     //@IBOutlet weak var shopLabel: UILabel!
+    
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
     
     
     var count = 0
@@ -45,9 +58,13 @@ class PeopleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setView()
+        hideNavigationBar()
     }
     
     private func setView(){
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         shopView.layer.cornerRadius = 20
         childrenView.isHidden = true
         slider.isHidden = true
@@ -60,7 +77,7 @@ class PeopleViewController: UIViewController {
     //MARK:- ACTIONS
     
     @IBAction func sliderChanged(_ sender: Any) {
-        childrenCountLabel.text = "\(slider.value)"
+        childrenCountLabel.text = "\(Double(round(10*slider.value)/10))"
     }
     
     
@@ -102,10 +119,12 @@ class PeopleViewController: UIViewController {
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -123,4 +142,25 @@ class PeopleViewController: UIViewController {
         }
     }
     
+}
+
+extension PeopleViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+                self.messageView.alpha = 0
+            }
+        })
+       
+    }
 }

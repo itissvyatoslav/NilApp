@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
-class SecondBadViewController: UIViewController {
+class SecondBadViewController: UIViewController, GADInterstitialDelegate {
     
     @IBOutlet weak var restartButton: UIButton!
     
@@ -17,6 +18,22 @@ class SecondBadViewController: UIViewController {
         super.viewDidLoad()
         hideNavigationBar()
         restartButton.layer.cornerRadius = 11
+        interstitial = createAndLoadInterstitial()
+    }
+    
+    var interstitial: GADInterstitial!
+    
+    let areAdsDeleted = UserDefaults.standard.bool(forKey: "areAdsDeleted")
+    
+    func createAndLoadInterstitial() -> GADInterstitial {
+      var interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+      interstitial.delegate = self
+      interstitial.load(GADRequest())
+      return interstitial
+    }
+    
+    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
+      interstitial = createAndLoadInterstitial()
     }
     
     override var prefersStatusBarHidden: Bool { return true }
@@ -31,6 +48,14 @@ class SecondBadViewController: UIViewController {
                                                                        animated: false)
                     break
                 }
+        }
+    }
+    
+    @IBAction func laterTapped(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
         }
     }
     

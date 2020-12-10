@@ -36,6 +36,19 @@ class ConfirmPaymentViewController: UIViewController {
     @IBOutlet weak var numbersLabel: UILabel!
     
     @IBOutlet weak var shopView: UIView!
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
+    
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "Сообщения", from: "Босс", text: "почему в 3 пункте не так как я просил. должно быть слово в слово. переделать"), Helper(title: "DeZigner", from: "Подсказка", text: "Попробуйте ввести комментарий с маленькой буквой"), Helper(title: "DeZigner", from: "Подсказка", text: "Попробуйте ввести комментарий без лишних символов"), Helper(title: "Сообщения", from: "Босс", text: "Еще надо принять соглашение, не забудь")]
+    
    // @IBOutlet weak var shopLabel: UILabel!
     
     @IBAction func shopTapped(_ sender: Any) {
@@ -43,10 +56,12 @@ class ConfirmPaymentViewController: UIViewController {
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -86,6 +101,9 @@ class ConfirmPaymentViewController: UIViewController {
         super.viewDidLoad()
         hideNavigationBar()
         setView()
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
     }
     
     private func setView(){
@@ -170,5 +188,26 @@ extension ConfirmPaymentViewController: AgreementDelegate {
         UIView.animate(withDuration: 1) {
             self.nextButton.alpha = 1
         }
+    }
+}
+
+extension ConfirmPaymentViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+                self.messageView.alpha = 0
+            }
+        })
+       
     }
 }

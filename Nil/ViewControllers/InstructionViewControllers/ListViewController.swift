@@ -94,6 +94,7 @@ class ListViewController: UIViewController {
         if isCorrectFilm && isCorrectSeat && isCorrectTime {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "GoodFinishViewController") as! GoodFinishViewController
+            vc.vcID = 0
             self.navigationController?.pushViewController(vc, animated: true)
         } else {
             let number = Int.random(in: 1...10)

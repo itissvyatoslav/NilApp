@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class MainMenuViewController: UIViewController {
     
@@ -16,6 +17,8 @@ class MainMenuViewController: UIViewController {
     @IBOutlet weak var smallBlackView: UIView!
     @IBOutlet weak var tappedBigGreenView: UIView!
     @IBOutlet weak var backgroundView: UIView!
+    @IBOutlet weak var fingerImage: UIImageView!
+    
     
     private var isSwiped = false
     var isFirstEnter = false
@@ -27,6 +30,7 @@ class MainMenuViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        fingerImage.alpha = 0
         if isFirstEnter {
             bigGreenView.alpha = 0
             smallBlackView.alpha = 0
@@ -43,7 +47,7 @@ class MainMenuViewController: UIViewController {
     
     private func setViews(){
         self.tappedBigGreenView.alpha = 0
-        
+        createTimer()
         tappedBigGreenView.layer.cornerRadius = (UIScreen.main.bounds.width - 180) / 2 * 1.2
         bigGreenView.layer.cornerRadius = (UIScreen.main.bounds.width - 180) / 2
         smallBlackView.layer.cornerRadius = (UIScreen.main.bounds.width - 300) / 2
@@ -54,6 +58,15 @@ class MainMenuViewController: UIViewController {
         swipeDown.direction = UISwipeGestureRecognizer.Direction.down
         self.bigGreenView.addGestureRecognizer(swipeDown)
     }
+    var AudioPlayer = AVAudioPlayer()
+    
+    private func startMusic(){
+        let AssortedMusics = NSURL(fileURLWithPath: Bundle.main.path(forResource: "unlock", ofType: "mp3")!)
+        AudioPlayer = try! AVAudioPlayer(contentsOf: AssortedMusics as URL)
+        AudioPlayer.prepareToPlay()
+        AudioPlayer.numberOfLoops = 0
+        AudioPlayer.play()
+    }
     
     @objc func didSwipedUp() {
         if !isSwiped {
@@ -61,6 +74,7 @@ class MainMenuViewController: UIViewController {
                 self.tappedBigGreenView.center.y -= 50
                 self.bigGreenView.center.y -= 50
                 self.smallBlackView.center.y += 50
+                self.startMusic()
             }
             UIView.animate(withDuration: 0.7) {
                 self.tappedBigGreenView.center.y -= 10
@@ -132,5 +146,39 @@ class MainMenuViewController: UIViewController {
     }
 
     
+    //MARK:- TIMER
     
+    var timer = Timer()
+    var seconds = 7
+    
+    func createTimer(){
+        timer.tolerance = 0.1
+        timer = Timer.scheduledTimer(timeInterval: 1.0,
+                                     target: self,
+                                     selector: #selector(updateTimer),
+                                     userInfo: nil,
+                                     repeats: true)
+    }
+    
+    @objc func updateTimer() {
+        seconds -= 1
+        if seconds == 0 && !isSwiped {
+            seconds = 7
+            createTimer()
+            timer.invalidate()
+            //fingerImage.alpha = 1
+            UIView.animate(withDuration: 1) {
+                self.tappedBigGreenView.center.y -= 30
+                self.bigGreenView.center.y -= 30
+                self.smallBlackView.center.y += 30
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(800), execute: {
+                UIView.animate(withDuration: 1) {
+                    self.tappedBigGreenView.center.y += 30
+                    self.bigGreenView.center.y += 30
+                    self.smallBlackView.center.y -= 30
+                }
+            })
+        }
+    }
 }

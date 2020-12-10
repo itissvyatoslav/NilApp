@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class CornViewController: UIViewController {
     
@@ -67,7 +68,7 @@ class CornViewController: UIViewController {
     }
     
     private func startAnimation() {
-        UIView.animate(withDuration: 1) { [self] in
+        UIView.animate(withDuration: 0.7) { [self] in
             pop1.center.x = 0
             pop1.center.y = 0
             pop2.center.x = UIScreen.main.bounds.width / 2
@@ -91,6 +92,19 @@ class CornViewController: UIViewController {
             pop11.center.x = UIScreen.main.bounds.width / 3
             pop11.center.y = UIScreen.main.bounds.height
         }
+        startMusic()
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
+            self.AudioPlayer.stop()
+        })
     }
     
+    var AudioPlayer = AVAudioPlayer()
+    
+    private func startMusic(){
+        let AssortedMusics = NSURL(fileURLWithPath: Bundle.main.path(forResource: "pop", ofType: "mp3")!)
+        AudioPlayer = try! AVAudioPlayer(contentsOf: AssortedMusics as URL)
+        AudioPlayer.prepareToPlay()
+        AudioPlayer.numberOfLoops = 0
+        AudioPlayer.play()
+    }
 }

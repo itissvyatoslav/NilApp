@@ -14,6 +14,15 @@ class GeoViewController: UIViewController {
     
     private var isFrom = false
     
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "Сообщение", from: "Лера, жена", text: "Пришлось взять большой чемодан. Как там с билетами?"), Helper(title: "Погода", from: "Problems :(", text: "Sorry, but we can’t define your current location"), Helper(title: "Сообщение", from: "Сынок", text: "если что я закрылся на самый нижний замок"), Helper(title: "DeZigner", from: "Подсказка", text: "А что будет если нажать на багаж"), Helper(title: "DeZigner", from: "Подсказка", text: "Посмотрите на выпадающий список внимательнее")]
+
+    
     //MARK:- OUTLETS
     
     @IBOutlet weak var checkBox: UIButton!
@@ -26,12 +35,18 @@ class GeoViewController: UIViewController {
     @IBOutlet weak var shopView: UIView!
     //@IBOutlet weak var shopLabel: UILabel!
     
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromMessageLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
+    
     override func viewWillAppear(_ animated: Bool) {
         setLights()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        hideNavigationBar()
         setView()
     }
     
@@ -45,6 +60,9 @@ class GeoViewController: UIViewController {
     }
     
     private func setView(){
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         shopView.layer.cornerRadius = 20
         mainLabel.text = "Выберите откуда вас\nзабрать и куда доставить"
         checkBox.isHidden = true
@@ -92,10 +110,12 @@ class GeoViewController: UIViewController {
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -133,3 +153,23 @@ extension GeoViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+extension GeoViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromMessageLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+                self.messageView.alpha = 0
+            }
+        })
+       
+    }
+}

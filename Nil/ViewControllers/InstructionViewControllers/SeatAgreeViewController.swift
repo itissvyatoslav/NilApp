@@ -10,7 +10,7 @@ import UIKit
 
 class SeatAgreeViewController: UIViewController {
     
-    let seats = ["10A", "10B", "10C", "9A", "9B", "9C", "8B"]
+    let seats = ["8B", "9B", "9C", "10A", "10B", "10C", "9A"]
     
     @IBOutlet weak var seatLabel: UILabel!
     @IBOutlet weak var seatView: UIView!

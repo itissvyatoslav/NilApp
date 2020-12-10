@@ -17,6 +17,8 @@ class SitPickerViewController: UIViewController {
     @IBOutlet weak var fifthView: UIView!
     @IBOutlet weak var sixthView: UIView!
     @IBOutlet weak var seventhView: UIView!
+    @IBOutlet weak var adView: UIView!
+    
     
     @IBOutlet weak var nextButton: UIButton!
     
@@ -32,6 +34,7 @@ class SitPickerViewController: UIViewController {
     }
     
     private func setView(){
+        adView.isHidden = true
         isReadyToNext = false
         secondView.backgroundColor = UIColor(red: 228/255, green: 228/255, blue: 228/255, alpha: 1)
         seatLabel.alpha = 0
@@ -49,9 +52,15 @@ class SitPickerViewController: UIViewController {
         setView()
     }
     
+    @IBAction func adCloseTapped(_ sender: Any) {
+        adView.isHidden = true
+    }
+    
+    
     override var prefersStatusBarHidden: Bool {return true}
     
     @IBAction func firstViewTapped(_ sender: Any) {
+        adView.isHidden = false
         if !isReadyToNext {
             seatLabel.alpha = 1
             seatLabel.text = "10A"
@@ -73,6 +82,7 @@ class SitPickerViewController: UIViewController {
     }
     
     @IBAction func thirdViewTapped(_ sender: Any) {
+        adView.isHidden = false
         if !isReadyToNext {
             seatLabel.alpha = 1
             seatLabel.text = "10C"
@@ -85,6 +95,7 @@ class SitPickerViewController: UIViewController {
     }
     
     @IBAction func forthViewTapped(_ sender: Any) {
+        adView.isHidden = false
         if !isReadyToNext {
             seatLabel.alpha = 1
             seatLabel.text = "9A"
@@ -97,6 +108,7 @@ class SitPickerViewController: UIViewController {
     }
     
     @IBAction func fifthViewTapped(_ sender: Any) {
+        adView.isHidden = false
         if !isReadyToNext {
             seatLabel.alpha = 1
             seatLabel.text = "9B"
@@ -109,6 +121,7 @@ class SitPickerViewController: UIViewController {
     }
     
     @IBAction func sixthViewTapped(_ sender: Any) {
+        adView.isHidden = false
         if !isReadyToNext {
             seatLabel.alpha = 1
             seatLabel.text = "9C"
@@ -121,6 +134,7 @@ class SitPickerViewController: UIViewController {
     }
     
     @IBAction func seventhViewTapped(_ sender: Any) {
+        adView.isHidden = false
         if !isReadyToNext {
             seatLabel.alpha = 1
             seatLabel.text = "8B"

@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
-class FinishHospitalViewController: UIViewController {
+class FinishHospitalViewController: UIViewController, GADInterstitialDelegate {
     
     let hospitals = ["ГБУЗ №3", "ГКБ №121", "ГП №11", "ГКБСМП №21", "ГКП №1", "ГИК №2", "ЦКБ №2"]
     
@@ -40,6 +41,11 @@ class FinishHospitalViewController: UIViewController {
     
     @IBOutlet weak var hospitalsTable: UITableView!
     @IBOutlet weak var shopView: UIView!
+    
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
     //@IBOutlet weak var shopLabel: UILabel!
     
     @IBAction func shopTapped(_ sender: Any) {
@@ -73,10 +79,14 @@ class FinishHospitalViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         shopView.layer.cornerRadius = 20
         super.viewDidLoad()
         hideNavigationBar()
         setView()
+        interstitial = createAndLoadInterstitial()
     }
     
     override var prefersStatusBarHidden: Bool { return true }
@@ -128,14 +138,86 @@ class FinishHospitalViewController: UIViewController {
         })
     }
     
+    //MARK:- SHOW AD
+    
+    var interstitial: GADInterstitial!
+    
+    let areAdsDeleted = UserDefaults.standard.bool(forKey: "areAdsDeleted")
+    
+    func createAndLoadInterstitial() -> GADInterstitial {
+      var interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+      interstitial.delegate = self
+      interstitial.load(GADRequest())
+      return interstitial
+    }
+    
+    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
+      interstitial = createAndLoadInterstitial()
+    }
+    
+    @IBAction func firstMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func secondMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func thirdMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func forthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func fifthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func sixthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
     @IBAction func readyAction(_ sender: Any) {
         checkResult()
     }
     
     private func checkResult() {
-        if doctorName == "Ларина Полина Петровна" && room == "каб. 409" && date == "12.10.2020" && time == "13:00" {
+        let date2 = Date()
+        let calendar = Calendar.current
+        let nextCalendar = Calendar.current.date(byAdding: .day, value: +1, to: date2)
+        let nextDay = calendar.component(.day, from: nextCalendar!)
+        let nextMonth = calendar.component(.month, from: nextCalendar!)
+        let nextYear = calendar.component(.year, from: nextCalendar!)
+        if doctorName == "Ларина Полина Петровна" && room == "каб. 409" && date == "\(nextDay).\(nextMonth).\(nextYear)" && time == "13:00" && checkTextFields(){
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "GoodFinishViewController") as! GoodFinishViewController
+            vc.vcID = 1
             self.navigationController?.pushViewController(vc, animated: true)
         } else {
             let number = Int.random(in: 1...10)
@@ -149,6 +231,21 @@ class FinishHospitalViewController: UIViewController {
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         }
+    }
+    
+    private func checkTextFields() -> Bool {
+        var isGood = true
+        if !email.contains("@") {
+            isGood = false
+        }
+        let letters = NSCharacterSet.letters
+        let range = phone.rangeOfCharacter(from: letters)
+        let range2 = birthday.rangeOfCharacter(from: letters)
+        if range != nil || range2 != nil {
+            isGood = false
+        }
+        
+        return isGood
     }
     
 }

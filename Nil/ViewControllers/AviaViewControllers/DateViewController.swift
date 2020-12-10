@@ -26,7 +26,18 @@ class DateViewController: UIViewController {
     @IBOutlet weak var calendarImage: UIImageView!
     @IBOutlet weak var shopView: UIView!
     //@IBOutlet weak var shopLabel: UILabel!
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
     
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "Сообщение", from: "Босс", text: "Посмотри у себя в календаре свободные даты для командировки"), Helper(title: "DeZigner", from: "Подсказка", text: "Нажмите на свободные даты в календаре"), Helper(title: "DeZigner", from: "Подсказка", text: "Заполни дату по шаблону")]
     
     
     var hour1 = 18
@@ -39,6 +50,7 @@ class DateViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        hideNavigationBar()
         setView()
     }
     
@@ -64,6 +76,9 @@ class DateViewController: UIViewController {
     override var prefersStatusBarHidden: Bool { return true }
     
     private func setView(){
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         shopView.layer.cornerRadius = 20
         time1Label.text = "\(hour1):\(minute1)"
         time2Label.text = "\(hour2):\(minute2)"
@@ -150,10 +165,12 @@ class DateViewController: UIViewController {
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -170,5 +187,25 @@ class DateViewController: UIViewController {
             //shopLabel.text = "∞"
         }
     }
-    
+}
+
+extension DateViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+                self.messageView.alpha = 0
+            }
+        })
+       
+    }
 }

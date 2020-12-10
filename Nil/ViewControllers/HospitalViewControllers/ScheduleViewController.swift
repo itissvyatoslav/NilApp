@@ -7,14 +7,27 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
-class ScheduleViewController: UIViewController {
+class ScheduleViewController: UIViewController, GADInterstitialDelegate {
     
     let hospitals = ["ГБУЗ №3", "ГКБ №121", "ГП №11", "ГКБСМП №21", "ГКП №1", "ГИК №2", "ЦКБ №2"]
     
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "DeZigner", from: "Подсказка", text: "Найдите нужную информацию")]
     
     @IBOutlet weak var hospitalsTable: UITableView!
     @IBOutlet weak var shopView: UIView!
+    
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
     //@IBOutlet weak var shopLabel: UILabel!
     
     @IBAction func shopTapped(_ sender: Any) {
@@ -22,10 +35,12 @@ class ScheduleViewController: UIViewController {
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -48,12 +63,16 @@ class ScheduleViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         super.viewDidLoad()
         hideNavigationBar()
         shopView.layer.cornerRadius = 20
         hospitalsTable.isHidden = true
         hospitalsTable.delegate = self
         hospitalsTable.dataSource = self
+        interstitial = createAndLoadInterstitial()
     }
     
     override var prefersStatusBarHidden: Bool { return true }
@@ -85,6 +104,70 @@ class ScheduleViewController: UIViewController {
         self.navigationController?.popViewController(animated: false)
     }
     
+    //MARK:- SHOW AD
+    
+    var interstitial: GADInterstitial!
+    
+    let areAdsDeleted = UserDefaults.standard.bool(forKey: "areAdsDeleted")
+    
+    func createAndLoadInterstitial() -> GADInterstitial {
+      var interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+      interstitial.delegate = self
+      interstitial.load(GADRequest())
+      return interstitial
+    }
+    
+    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
+      interstitial = createAndLoadInterstitial()
+    }
+    
+    @IBAction func firstMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func secondMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func thirdMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func forthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func fifthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func sixthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
 }
 
 extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
@@ -105,5 +188,23 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
             self.navigationController?.pushViewController(vc, animated: false)
         }
     }
-    
+}
+
+extension ScheduleViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 10
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+            }
+        })
+    }
 }

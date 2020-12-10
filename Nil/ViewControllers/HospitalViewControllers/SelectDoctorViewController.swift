@@ -7,8 +7,17 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
-class SelectDoctorViewController: UIViewController {
+class SelectDoctorViewController: UIViewController, GADInterstitialDelegate {
+    
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "Сообщение", from: "Лера, жена", text: "Оказывается у них нет соответствия врача и кабинета.. Что с ними не так"), Helper(title: "DeZigner", from: "Подсказка", text: "Выберите нужного врача и кабинет")]
     
     let hospitals = ["ГБУЗ №3", "ГКБ №121", "ГП №11", "ГКБСМП №21", "ГКП №1", "ГИК №2", "ЦКБ №2"]
     let rooms = ["каб. 402", "каб. 407", "каб. 409", "каб. 303", "каб. 301", "каб. 101", "каб. 101б", "каб. 190", "каб. 204", "каб. 204", "каб. 199", "каб. 103", "каб. 128", "каб. 510", "каб. 445", "каб. 439", "каб. 10", "каб. 12", "каб. 221б"]
@@ -28,15 +37,22 @@ class SelectDoctorViewController: UIViewController {
     @IBOutlet weak var shopView: UIView!
     //@IBOutlet weak var shopLabel: UILabel!
     
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
+    
     @IBAction func shopTapped(_ sender: Any) {
         var numberLights = UserDefaults.standard.integer(forKey: "lights")
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -59,6 +75,9 @@ class SelectDoctorViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         super.viewDidLoad()
         hideNavigationBar()
         shopView.layer.cornerRadius = 20
@@ -72,6 +91,7 @@ class SelectDoctorViewController: UIViewController {
         hospitalsTable.delegate = self
         hospitalsTable.dataSource = self
         nextButton.layer.cornerRadius = 10
+        interstitial = createAndLoadInterstitial()
     }
     
     override var prefersStatusBarHidden: Bool { return true }
@@ -114,6 +134,71 @@ class SelectDoctorViewController: UIViewController {
         vc.nameDoctor = nameLabel.text ?? ""
         vc.room = roomLabel.text ?? ""
         self.navigationController?.pushViewController(vc, animated: false)
+    }
+    
+    //MARK:- SHOW AD
+    
+    var interstitial: GADInterstitial!
+    
+    let areAdsDeleted = UserDefaults.standard.bool(forKey: "areAdsDeleted")
+    
+    func createAndLoadInterstitial() -> GADInterstitial {
+      var interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+      interstitial.delegate = self
+      interstitial.load(GADRequest())
+      return interstitial
+    }
+    
+    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
+      interstitial = createAndLoadInterstitial()
+    }
+    
+    @IBAction func firstMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func secondMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func thirdMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func forthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func fifthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func sixthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
     }
     
     //MARK:- VIEW BUTTONS
@@ -179,5 +264,24 @@ extension SelectDoctorViewController: UITableViewDataSource, UITableViewDelegate
                 self.navigationController?.pushViewController(vc, animated: false)
             }
         }
+    }
+}
+
+extension SelectDoctorViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 10
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+            }
+        })
     }
 }

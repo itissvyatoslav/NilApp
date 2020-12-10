@@ -7,11 +7,20 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
-class CoronaViewController: UIViewController {
+class CoronaViewController: UIViewController, GADInterstitialDelegate {
     
     let hospitals = ["ГБУЗ №3", "ГКБ №121", "ГП №11", "ГКБСМП №21", "ГКП №1", "ГИК №2", "ЦКБ №2"]
     var isChecked = [false, false, false, false, false, false, false, false, false, false, true, false]
+    
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "Сообщение", from: "Лера, жена", text: "Со списком аккуратнее, они могут проверить некоторые пункты"), Helper(title: "DeZigner", from: "Подсказка", text: "Внимательно прочитайте все пункты")]
     
     var nameDoctor = ""
     var room = ""
@@ -20,6 +29,11 @@ class CoronaViewController: UIViewController {
     
     @IBOutlet weak var hospitalsTable: UITableView!
     @IBOutlet weak var nextButton: UIButton!
+    
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
     
     //MARK:-  CHECKBOXES
     
@@ -44,10 +58,12 @@ class CoronaViewController: UIViewController {
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -70,6 +86,9 @@ class CoronaViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         super.viewDidLoad()
         hideNavigationBar()
         shopView.layer.cornerRadius = 20
@@ -77,6 +96,7 @@ class CoronaViewController: UIViewController {
         hospitalsTable.delegate = self
         hospitalsTable.dataSource = self
         nextButton.layer.cornerRadius = 10
+        interstitial = createAndLoadInterstitial()
     }
     
     override var prefersStatusBarHidden: Bool { return true }
@@ -106,6 +126,71 @@ class CoronaViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: {
             self.hospitalsTable.isHidden = true
         })
+    }
+    
+    //MARK:- SHOW AD
+    
+    var interstitial: GADInterstitial!
+    
+    let areAdsDeleted = UserDefaults.standard.bool(forKey: "areAdsDeleted")
+    
+    func createAndLoadInterstitial() -> GADInterstitial {
+      var interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+      interstitial.delegate = self
+      interstitial.load(GADRequest())
+      return interstitial
+    }
+    
+    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
+      interstitial = createAndLoadInterstitial()
+    }
+    
+    @IBAction func firstMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func secondMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func thirdMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func forthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func fifthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func sixthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
     }
     
     
@@ -211,5 +296,24 @@ extension CoronaViewController: UITableViewDelegate, UITableViewDataSource {
         if indexPath.row == 2 {
             self.navigationController?.popViewController(animated: false)
         }
+    }
+}
+
+extension CoronaViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 10
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+            }
+        })
     }
 }

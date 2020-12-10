@@ -55,27 +55,31 @@ class CinemaTimeViewController: UIViewController {
     
     @IBAction func firstTapped(_ sender: Any) {
         setBorders()
-        firstView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
+        isCorrectTime = false
+        //firstView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
     }
     
     @IBAction func secondTapped(_ sender: Any) {
         setBorders()
-        secondView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
+        isCorrectTime = false
+        //secondView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
     }
     
     @IBAction func thirdTapped(_ sender: Any) {
         setBorders()
-        thirdView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
+        isCorrectTime = false
+        //thirdView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
     }
     
     @IBAction func forthTapped(_ sender: Any) {
         setBorders()
-        forthView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
+        isCorrectTime = false
+        //forthView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
     }
     
     @IBAction func fifthTapped(_ sender: Any) {
         setBorders()
-        fifthView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
+        //fifthView.layer.borderColor = CGColor(red: 0, green: 206/255, blue: 169/255, alpha: 1)
         isCorrectTime = true
     }
     

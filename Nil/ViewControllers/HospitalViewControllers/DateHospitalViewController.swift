@@ -7,13 +7,22 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
-class DateHospitalViewController: UIViewController {
+class DateHospitalViewController: UIViewController, GADInterstitialDelegate {
     
     let hospitals = ["ГБУЗ №3", "ГКБ №121", "ГП №11", "ГКБСМП №21", "ГКП №1", "ГИК №2", "ЦКБ №2"]
     var dates = [String]()
     let times = ["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"]
     var isMale = false
+    
+    struct Helper {
+        var title: String
+        var from: String
+        var text: String
+    }
+    
+    let helpers = [Helper(title: "Сообщение", from: "Босс", text: "почему до сих пор не все по шаблону. У тебя есть час, чтобы исправить"), Helper(title: "DeZigner", from: "Подсказка", text: "Введите все поля по шаблону")]
     
     //MARK:- OUTLETS
     
@@ -40,15 +49,22 @@ class DateHospitalViewController: UIViewController {
     @IBOutlet weak var shopView: UIView!
     //@IBOutlet weak var shopLabel: UILabel!
     
+    @IBOutlet weak var messageView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var fromLabel: UILabel!
+    @IBOutlet weak var textLabel: UILabel!
+    
     @IBAction func shopTapped(_ sender: Any) {
         var numberLights = UserDefaults.standard.integer(forKey: "lights")
         if numberLights == 0 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else if numberLights == 500 {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ShopViewController") as! ShopViewController
+            vc.delegateHelp = self
             self.navigationController?.pushViewController(vc, animated: false)
         } else {
             numberLights -= 1
@@ -75,6 +91,9 @@ class DateHospitalViewController: UIViewController {
     var room = ""
     
     override func viewDidLoad() {
+        messageView.alpha = 0
+        messageView.layer.cornerRadius = 20
+        messageView.center.y -= 90
         super.viewDidLoad()
         hideNavigationBar()
         getDates()
@@ -93,6 +112,7 @@ class DateHospitalViewController: UIViewController {
         phoneTF.delegate = self
         emailTF.delegate = self
         nextButton.layer.cornerRadius = 10
+        interstitial = createAndLoadInterstitial()
     }
     
     override var prefersStatusBarHidden: Bool {return true}
@@ -124,6 +144,71 @@ class DateHospitalViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: {
             self.hospitalsTable.isHidden = true
         })
+    }
+    
+    //MARK:- SHOW AD
+    
+    var interstitial: GADInterstitial!
+    
+    let areAdsDeleted = UserDefaults.standard.bool(forKey: "areAdsDeleted")
+    
+    func createAndLoadInterstitial() -> GADInterstitial {
+      var interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+      interstitial.delegate = self
+      interstitial.load(GADRequest())
+      return interstitial
+    }
+    
+    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
+      interstitial = createAndLoadInterstitial()
+    }
+    
+    @IBAction func firstMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func secondMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func thirdMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func forthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func fifthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
+    }
+    
+    @IBAction func sixthMissAction(_ sender: Any) {
+        if !areAdsDeleted {
+            if interstitial.isReady {
+                interstitial.present(fromRootViewController: self)
+            }
+        }
     }
     
     //MARK:- ANOTHER ACTIONS
@@ -239,5 +324,23 @@ extension DateHospitalViewController: UITableViewDataSource, UITableViewDelegate
             timeTable.isHidden = true
         }
     }
-    
+}
+
+extension DateHospitalViewController: ShopViewControllerHelpDelegate {
+    func cameFromHelp() {
+        let number = Int.random(in: 0...helpers.count - 1)
+        titleLabel.text = helpers[number].title
+        fromLabel.text = helpers[number].from
+        textLabel.text = helpers[number].text
+        messageView.alpha = 1
+        startMusicPush()
+        UIView.animate(withDuration: 1) {
+            self.messageView.center.y += 10
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(7), execute: {
+            UIView.animate(withDuration: 1) {
+                self.messageView.center.y -= 180
+            }
+        })
+    }
 }

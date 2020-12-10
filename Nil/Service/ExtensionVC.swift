@@ -8,17 +8,45 @@
 
 import UIKit
 import ImageIO
+import AVFoundation
 
 extension UIViewController: UITextFieldDelegate {
     
     func hideNavigationBar() {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(didSwipedRight))
+        swipeRight.direction = UISwipeGestureRecognizer.Direction.right
+        self.view.addGestureRecognizer(swipeRight)
+    }
+    
+    @objc func didSwipedRight() {
+        let alertWindow = UIAlertController(title: "Вы хотите выйти?", message: "Прогресс не сохранится и придется заново проходить уровень", preferredStyle: .alert)
+        let yesAction = UIAlertAction(title: "Да", style: .default) { (action) in
+            for controller in self.navigationController!.viewControllers as
+                Array {
+                    if controller.isKind(of:
+                        MainMenuViewController.self) {
+                        _ =
+                            self.navigationController!.popToViewController(controller,
+                                                                           animated: false)
+                        break
+                    }
+            }
+        }
+        let noAction = UIAlertAction(title: "Нет", style: .default) { (action) in
+            self.dismiss(animated: true, completion: nil)
+        }
+        alertWindow.addAction(yesAction)
+        alertWindow.addAction(noAction)
+        self.present(alertWindow, animated: true, completion: nil)
     }
     
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         self.view.endEditing(true)
         return false
     }
+    
+    
 }
 
 extension UINavigationController {
@@ -249,6 +277,28 @@ extension UIColor {
         }
 
         return nil
+    }
+}
+
+extension Date {
+    func add(minutes: Int) -> Date {
+        return Calendar(identifier: .gregorian).date(byAdding: .minute, value: minutes, to: self)!
+    }
+    
+    func add(seconds: Int) -> Date {
+        return Calendar(identifier: .gregorian).date(byAdding: .second, value: seconds, to: self)!
+    }
+}
+
+extension UIViewController {
+    func startMusicPush() {
+        var AudioPlayer = AVAudioPlayer()
+        
+        let AssortedMusics = NSURL(fileURLWithPath: Bundle.main.path(forResource: "PushSound", ofType: "mp3")!)
+        AudioPlayer = try! AVAudioPlayer(contentsOf: AssortedMusics as URL)
+        AudioPlayer.prepareToPlay()
+        AudioPlayer.numberOfLoops = 0
+        AudioPlayer.play()
     }
 }
 
